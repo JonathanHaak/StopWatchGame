@@ -23,6 +23,7 @@ fun GameOneScreen(GameViewModel: MainViewModel, NavController: NavController){
         Column(modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally){
+            ScoreBar(GameViewModel = GameViewModel)
             StopwatchScreen(GameViewModel = GameViewModel)
             Button(onClick = { NavController.navigate("Start") {
                 popUpTo("Start") { inclusive = true }
@@ -31,6 +32,18 @@ fun GameOneScreen(GameViewModel: MainViewModel, NavController: NavController){
                 Text("Back to Start")
             }
         }
+    }
+}
+
+@Composable
+fun ScoreBar(GameViewModel: MainViewModel){
+    val data = GameViewModel.gameState.collectAsState()
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween){
+        Text(text = "Score: ${data.value.score}", fontSize = 20.sp)
+        Text(text = "High Score: ${ if(data.value.highScore != 0L) data.value.highScore else "N/A"}", fontSize = 20.sp)
     }
 }
 @Composable
