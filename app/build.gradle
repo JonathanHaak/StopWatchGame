@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.stopwatchgame'
+    namespace 'com.example.TheTapGame'
     compileSdk 33
     compileSdkPreview 'UpsideDownCake'
     defaultConfig {
-        applicationId "com.example.stopwatchgame"
+        applicationId "com.example.TheTapGame"
         minSdk 24
         targetSdk 33
         versionCode 1
