@@ -6,6 +6,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,19 +36,23 @@ fun StatsScreen(navController: NavController, gameViewModel: ViewModelStats) {
                     .padding(bottom = 16.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "${gameType.name} Stats", fontWeight = FontWeight.Bold)
+                    Text(text = "${gameType.name} Stats", fontWeight = FontWeight.Bold,
+                    fontSize = 50.sp)
 
                     stats?.let {
-                        Text(text = "High Score: ${it.highScore}")
-                        Text(text = "Average Score: ${"%.1f".format(it.averageScore)}")
-                        Text(text = "Total Games Played: ${it.gamesPlayed}")
+                        Text(text = "High Score: ${it.highScore}", fontSize = 30.sp)
+                        Text(text = "Average Score: ${"%.1f".format(it.averageScore)}",
+                        fontSize = 30.sp)
+                        Text(text = "Total Games Played: ${it.gamesPlayed}",
+                        fontSize = 30.sp)
                     }
                 }
             }
         }
 
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Back to Start")
+        Button(onClick = { navController.popBackStack() },
+        modifier = Modifier.fillMaxWidth(.6f).align(Alignment.CenterHorizontally)) {
+            Text("Back to Start", fontSize = 50.sp)
         }
     }
 }

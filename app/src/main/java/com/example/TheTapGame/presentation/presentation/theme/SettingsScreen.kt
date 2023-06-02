@@ -22,32 +22,16 @@ enum class DialogState {
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
     var dialogState by remember { mutableStateOf(DialogState.NONE) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val snackbarMessage = viewModel.snackbarMessage.collectAsState()
-
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) { data ->
-                Snackbar(
-                    action = {
-                        TextButton(onClick = { snackbarHostState.currentSnackbarData?.dismiss() }) {
-                            Text(text = "OK", color = Color.White)
-                        }
-                    },
-                    content = { Text(text = data.toString()) }
-                )
-            }
-        },
-    ) {paddingValues ->
-        Surface(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        Surface(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "This is the Settings Screen!",
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    fontSize = 50.sp
                 )
 
                 // Add color picker here
@@ -58,7 +42,8 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
 
                 // Button to delete scores
                 for (gameType in GameType.values()) {
-                    Button(onClick = { dialogState = DialogState.valueOf(gameType.name) }) {
+                    Button(onClick = { dialogState = DialogState.valueOf(gameType.name) },
+                    modifier = Modifier.fillMaxWidth(.75f).height(200.dp)) {
                         Text("Clear ${gameType.name} Scores")
                     }
                 }
@@ -90,14 +75,8 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
                 }
             }
         }
-    }
 
         // Display snackbar message when updated
-        if (snackbarMessage.value.isNotEmpty()) {
-            LaunchedEffect(snackbarMessage.value) {
-                snackbarHostState.showSnackbar(snackbarMessage.value)
-            }
-        }
 
 }
 
@@ -106,7 +85,7 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
 fun ColorPicker(selectedColor: MutableState<Color>, onColorSelected: (Color) -> Unit) {
     val colors = listOf(Color.Red, Color.Blue, Color.Green, Color.Yellow) // Just some colors for this example
 
-    LazyRow {
+    LazyRow (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
         items(colors.size) { color ->
             Box(
                 modifier = Modifier

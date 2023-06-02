@@ -192,4 +192,60 @@ class MainViewModel(
                 0L}
         }
     }
+
+    fun onEvent(event: MyEvent){
+        when (event) {
+            is MyEvent.gameStart ->
+                when (event.gameType) {
+                    GameType.SPEED -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = true)}
+                    GameType.SURVIVAL -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = true)}
+                    GameType.PRECISION -> updateClock(event.gameType)
+                    GameType.REACT -> startStop(event.gameType)
+                }
+            is MyEvent.gameStop ->
+                when(event.gameType) {
+                    GameType.SPEED -> {
+                        val score = 1000L - gameState.value.timeSinceStart
+                        val highScore =
+                            if (score > gameState.value.highScore) score else gameState.value.highScore
+                        _gameState.update {
+                            it.copy(
+                                score = score,
+                                highScore = highScore,
+                                isRunning = false,
+                                timeSinceStart = 0L
+                            )
+                        }
+                        viewModelScope.launch {
+                            dao.upsertScore(
+                                Score(
+                                    score,
+                                    System.currentTimeMillis(),
+                                    event.gameType.name
+                                )
+                            )
+                            val averageScore = dao.getAverageScore(event.gameType.name)
+                            _gameState.update { it.copy(averageScore = averageScore) }
+                        }
+                    }
+                    GameType.SURVIVAL -> updateClock(event.gameType)
+                    GameType.PRECISION -> updateClock(event.gameType)
+                    GameType.REACT -> startStop(event.gameType)
+                }
+            is MyEvent.gameReset ->
+                when(event.gameType) {
+                    GameType.SPEED -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = false) }
+                    GameType.SURVIVAL -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = false) }
+                    GameType.PRECISION -> updateClock(event.gameType)
+                    GameType.REACT -> startStop(event.gameType)
+                }
+            is MyEvent.update ->
+                when(event.gameType) {
+                    GameType.SPEED -> _gameState.update { it.copy(elapsedTime = it.elapsedTime + 1, timeSinceStart = it.timeSinceStart + 1) }
+                    GameType.SURVIVAL -> updateClock(event.gameType)
+                    GameType.PRECISION -> updateClock(event.gameType)
+                    GameType.REACT -> startStop(event.gameType)
+                }
+        }
+    }
 }
