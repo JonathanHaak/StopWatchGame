@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -23,7 +24,7 @@ fun StatsScreen(navController: NavController, gameViewModel: ViewModelStats) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(text = "Game Stats", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(text = "Game Stats", fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -37,14 +38,14 @@ fun StatsScreen(navController: NavController, gameViewModel: ViewModelStats) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(text = "${gameType.name} Stats", fontWeight = FontWeight.Bold,
-                    fontSize = 50.sp)
+                    fontSize = 30.sp)
 
                     stats?.let {
-                        Text(text = "High Score: ${it.highScore}", fontSize = 30.sp)
+                        Text(text = "High Score: ${it.highScore}", fontSize = 20.sp)
                         Text(text = "Average Score: ${"%.1f".format(it.averageScore)}",
-                        fontSize = 30.sp)
+                        fontSize = 20.sp)
                         Text(text = "Total Games Played: ${it.gamesPlayed}",
-                        fontSize = 30.sp)
+                        fontSize = 20.sp)
                     }
                 }
             }
@@ -52,7 +53,7 @@ fun StatsScreen(navController: NavController, gameViewModel: ViewModelStats) {
 
         Button(onClick = { navController.popBackStack() },
         modifier = Modifier.fillMaxWidth(.6f).align(Alignment.CenterHorizontally)) {
-            Text("Back to Start", fontSize = 50.sp)
+            Text("Back to Start", fontSize = 20.sp)
         }
     }
 }

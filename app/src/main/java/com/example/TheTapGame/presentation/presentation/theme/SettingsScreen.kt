@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -31,7 +32,7 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
                 Text(
                     text = "This is the Settings Screen!",
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    fontSize = 50.sp
+                    fontSize = 30.sp
                 )
 
                 // Add color picker here
@@ -43,7 +44,7 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
                 // Button to delete scores
                 for (gameType in GameType.values()) {
                     Button(onClick = { dialogState = DialogState.valueOf(gameType.name) },
-                    modifier = Modifier.fillMaxWidth(.75f).height(200.dp)) {
+                    modifier = Modifier.fillMaxWidth(.75f).height(80.dp)) {
                         Text("Clear ${gameType.name} Scores")
                     }
                 }
@@ -84,7 +85,7 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
 @Composable
 fun ColorPicker(selectedColor: MutableState<Color>, onColorSelected: (Color) -> Unit) {
     val colors = listOf(Color.Red, Color.Blue, Color.Green, Color.Yellow) // Just some colors for this example
-
+    Text(text = "Select a color", textAlign = TextAlign.Center, modifier = Modifier.padding(8.dp))
     LazyRow (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
         items(colors.size) { color ->
             Box(

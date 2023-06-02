@@ -199,8 +199,8 @@ class MainViewModel(
                 when (event.gameType) {
                     GameType.SPEED -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = true)}
                     GameType.SURVIVAL -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = true)}
-                    GameType.PRECISION -> updateClock(event.gameType)
-                    GameType.REACT -> startStop(event.gameType)
+                    GameType.REACT -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = true, clicked = false, colorIndex = 0)}
+                    GameType.PRECISION -> startStop(event.gameType)
                 }
             is MyEvent.gameStop ->
                 when(event.gameType) {
@@ -229,22 +229,22 @@ class MainViewModel(
                         }
                     }
                     GameType.SURVIVAL -> updateClock(event.gameType)
-                    GameType.PRECISION -> updateClock(event.gameType)
-                    GameType.REACT -> startStop(event.gameType)
+                    GameType.REACT -> updateClock(event.gameType)
+                    GameType.PRECISION -> startStop(event.gameType)
                 }
             is MyEvent.gameReset ->
                 when(event.gameType) {
                     GameType.SPEED -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = false) }
-                    GameType.SURVIVAL -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = false) }
-                    GameType.PRECISION -> updateClock(event.gameType)
-                    GameType.REACT -> startStop(event.gameType)
+                    GameType.SURVIVAL -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = false, earlyStopThreshold = 100) }
+                    GameType.REACT -> updateClock(event.gameType)
+                    GameType.PRECISION -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L, elapsedTime = 0L, isRunning = false, targetTime = (50..500).random().toLong()) }
                 }
             is MyEvent.update ->
                 when(event.gameType) {
                     GameType.SPEED -> _gameState.update { it.copy(elapsedTime = it.elapsedTime + 1, timeSinceStart = it.timeSinceStart + 1) }
-                    GameType.SURVIVAL -> updateClock(event.gameType)
-                    GameType.PRECISION -> updateClock(event.gameType)
-                    GameType.REACT -> startStop(event.gameType)
+                    GameType.SURVIVAL -> _gameState.update { it.copy(elapsedTime = it.elapsedTime + 1, timeSinceStart = it.timeSinceStart + 1) }
+                    GameType.REACT -> _gameState.update { it.copy(elapsedTime = it.elapsedTime + 1, timeSinceStart = it.timeSinceStart + 1) }
+                    GameType.PRECISION -> _gameState.update { it.copy(elapsedTime = it.elapsedTime + 1, timeSinceStart = it.timeSinceStart + 1) }
                 }
         }
     }

@@ -57,7 +57,7 @@ fun StartScreen(navController: NavController) {
 fun CustomText(text: String, onClick: () -> Unit, color: Color) {
     Box(modifier = Modifier
         .fillMaxWidth()
-        .height(300.dp) // increase the height here
+        .height(200.dp) // increase the height here
         .clickable(onClick = onClick)
         .background(color), // add background to the box
         contentAlignment = Alignment.Center // center the text within the box
