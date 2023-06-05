@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.TheTapGame.State.GameType
@@ -22,6 +23,8 @@ fun SurvivalScreen(NavController: NavController, GameViewModel: MainViewModel){
         Column(modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally){
+            Text(text = "Round ${gameState.round}", fontSize = 30.sp, textAlign = TextAlign.Center)
+            Text(text = "Death Time: ${gameState.earlyStopThreshold}", fontSize = 30.sp, textAlign = TextAlign.Center)
             ScoreBar(GameViewModel = GameViewModel)
             StopwatchScreen(GameViewModel = GameViewModel, gameType = GameType.SURVIVAL)
             Button(onClick = { NavController.popBackStack() }) {

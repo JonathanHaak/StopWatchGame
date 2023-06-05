@@ -1,8 +1,11 @@
 package com.example.TheTapGame
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +26,13 @@ class MainActivity : ComponentActivity() {
             "score.db"
         ).build()
     }
+    private val preferences: SharedPreferences by lazy {
+        getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+    }
+
+    private val sharedViewModel: SharedViewModel by viewModels { SharedViewModelFactory(preferences) }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +62,7 @@ class MainActivity : ComponentActivity() {
                         StatsScreen(navController, viewModel)
                     }
                     composable(Screen.Settings.route) {
-                        val viewModel = viewModel<ViewModelSettings>(factory = ViewModelSettingsFactory(GameType.SPEED, db.dao)) // use whichever GameType you like here
+                        val viewModel = viewModel<ViewModelSettings>(factory = ViewModelSettingsFactory(GameType.SPEED, db.dao, preferences)) // use whichever GameType you like here
                         SettingsScreen(navController, viewModel)
                     }
                     composable(Screen.Info.route) { InfoScreen(navController) }
@@ -66,6 +76,15 @@ class MainActivity : ComponentActivity() {
             return MainViewModel(gameType, dao) as T
         }
     }
+    class SharedViewModelFactory(private val preferences: SharedPreferences): ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(SharedViewModel::class.java)) {
+                return SharedViewModel(preferences) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
+
 
     class ViewModelStatsFactory(private val gameType: GameType, private val dao: ScoresDao): ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -73,11 +92,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    class ViewModelSettingsFactory(private val gameType: GameType, private val dao: ScoresDao): ViewModelProvider.Factory {
+    class ViewModelSettingsFactory(private val gameType: GameType, private val dao: ScoresDao, private val preferences: SharedPreferences): ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ViewModelSettings(dao) as T
+            return ViewModelSettings(dao, preferences) as T
         }
     }
+
 
 }
 

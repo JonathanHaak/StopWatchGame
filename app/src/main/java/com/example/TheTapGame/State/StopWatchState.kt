@@ -16,4 +16,8 @@ data class GameState(
     val gameType: GameType,
     val earlyStopThreshold: Long = 100L,
     val targetTime: Long = 0L,
+    val timeOnClock: Long = 500L,
+    val colorDelay : Long = 1000L,
+    val round: Int = 1,
+    val killSwitch: Boolean = false,
 )

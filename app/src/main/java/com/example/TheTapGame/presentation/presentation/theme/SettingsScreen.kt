@@ -37,7 +37,7 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
 
                 // Add color picker here
                 ColorPicker(
-                    selectedColor = viewModel.colorScheme,
+                    colorScheme = viewModel.colorScheme,
                     onColorSelected = viewModel::updateColorScheme
                 )
 
@@ -83,10 +83,24 @@ fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
 
 
 @Composable
-fun ColorPicker(selectedColor: MutableState<Color>, onColorSelected: (Color) -> Unit) {
-    val colors = listOf(Color.Red, Color.Blue, Color.Green, Color.Yellow) // Just some colors for this example
-    Text(text = "Select a color", textAlign = TextAlign.Center, modifier = Modifier.padding(8.dp))
-    LazyRow (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
+fun ColorPicker(colorScheme: MutableState<ColorScheme>, onColorSelected: (Color, Color) -> Unit) {
+    val colors = listOf(Color.Red, Color.Blue, Color.Green, Color.Yellow)
+    Text(text = "Select primary and secondary colors", textAlign = TextAlign.Center, modifier = Modifier.padding(8.dp))
+    Text(text = "Primary color", textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+    ColorRow(colors, colorScheme.value.color1) { selectedPrimaryColor ->
+        colorScheme.value = colorScheme.value.copy(color1 = selectedPrimaryColor)
+    }
+    Text(text = "Secondary color", textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+    ColorRow(colors, colorScheme.value.color2) { selectedSecondaryColor ->
+        colorScheme.value = colorScheme.value.copy(color2 = selectedSecondaryColor)
+    }
+    // update both colors on any color selection
+    onColorSelected(colorScheme.value.color1, colorScheme.value.color2)
+}
+
+@Composable
+fun ColorRow(colors: List<Color>, selectedColor: Color, onColorSelected: (Color) -> Unit) {
+    LazyRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
         items(colors.size) { color ->
             Box(
                 modifier = Modifier
@@ -96,12 +110,12 @@ fun ColorPicker(selectedColor: MutableState<Color>, onColorSelected: (Color) -> 
                     .clickable { onColorSelected(colors[color]) },
                 contentAlignment = Alignment.Center
             ) {
-                if (selectedColor.value == colors[color]) {
-                    // Show a tick if this color is selected
+                if (selectedColor == colors[color]) {
                     Text(text = "✓", color = Color.White, fontSize = 20.sp)
                 }
             }
         }
     }
 }
+
 

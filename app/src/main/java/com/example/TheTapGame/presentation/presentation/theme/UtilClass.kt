@@ -15,74 +15,36 @@ import com.example.TheTapGame.State.GameState
 import com.example.TheTapGame.State.GameType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 object Util {
 
     @Composable
-    fun formatTime(millis: Long, gameType: GameType): String {
-        val milliseconds = if (gameType == GameType.SURVIVAL) 500L - millis else millis % 1000
+    fun formatTime(millis: Long): String {
+        val milliseconds = millis % 1000
         return String.format("%04d", milliseconds)
     }
 
     @Composable
     fun ScoreBar(GameViewModel: MainViewModel){
-        val data = GameViewModel.gameState.collectAsState()
+        val data by GameViewModel.gameState.collectAsState()
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween){
-            Text(text = "Score: ${data.value.score}", fontSize = 20.sp)
-            Text(text = "High Score: ${ if(data.value.highScore != 0L) data.value.highScore else "N/A"}", fontSize = 20.sp)
-            Text(text = "AVG: ${"%.1f".format(data.value.averageScore)}", fontSize = 20.sp)
+            Text(text = "Score: ${data.score}", fontSize = 20.sp)
+            Text(text = "High Score: ${ if(data.highScore != 0L) data.highScore else "N/A"}", fontSize = 20.sp)
+            Text(text = "AVG: ${"%.1f".format(data.averageScore)}", fontSize = 20.sp)
+        }
+        if(data.gameType == GameType.PRECISION){
+            Text(text = "Time to target: ${data.targetTime}", fontSize = 20.sp)
         }
     }
 
     @Composable
     fun StopwatchScreen(GameViewModel: MainViewModel, gameType: GameType) {
-        val coroutineScope = rememberCoroutineScope()
-        var timerJob by remember { mutableStateOf<Job?>(null) }
         val data = GameViewModel.gameState.collectAsState()
-
-        LaunchedEffect(key1 = data.value.isRunning) {
-            if (data.value.isRunning) {
-                timerJob?.cancel()
-                timerJob = coroutineScope.launch {
-                    when (gameType) {
-                        GameType.SURVIVAL -> runSurvivalGame(GameViewModel, data)
-                        GameType.PRECISION -> runPrecisionGame(GameViewModel, data)
-                        else -> runOtherGame(GameViewModel, data)
-                    }
-                }
-            }
-        }
-
         ComposeClockScreen(GameViewModel, gameType, data)
-    }
-
-    private suspend fun runSurvivalGame(GameViewModel: MainViewModel, data: State<GameState>) {
-        while (data.value.isRunning && data.value.elapsedTime <= 500) {
-            delay(1)
-            GameViewModel.updateClock(GameType.SURVIVAL)
-        }
-        if(data.value.elapsedTime > 500) {
-            GameViewModel.startStop(GameType.SURVIVAL)
-        }
-    }
-
-    private suspend fun runPrecisionGame(GameViewModel: MainViewModel, data: State<GameState>) {
-        while (data.value.isRunning) {
-            delay(1)
-            GameViewModel.updateClock(GameType.PRECISION)
-        }
-    }
-
-    private suspend fun runOtherGame(GameViewModel: MainViewModel, data: State<GameState>) {
-        while (data.value.isRunning) {
-            delay(1)
-            GameViewModel.updateClock(GameType.SPEED)  // Replace SPEED with other game types as needed
-        }
     }
 
     @Composable
@@ -92,10 +54,10 @@ object Util {
             .fillMaxHeight(.6f)
             .padding(16.dp)) {
 
-            Text(text = Util.formatTime(data.value.elapsedTime, gameType), fontSize = 120.sp, modifier = Modifier
+            Text(text = formatTime(data.value.timeOnClock), fontSize = 120.sp, modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .clickable {
-                    GameViewModel.startStop(gameType)
+                    GameViewModel.onEvent(MyEvent.GameStart(gameType))
                 })
 
             ComposeControlButtons(GameViewModel, gameType, data)
@@ -111,7 +73,7 @@ object Util {
 
             Button(
                 onClick = {
-                    GameViewModel.reset()
+                    GameViewModel.onEvent(MyEvent.GameReset(gameType))
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow,contentColor = Color.Black),
                 modifier = Modifier
@@ -125,7 +87,7 @@ object Util {
 
             Button(
                 onClick = {
-                    GameViewModel.startStop(gameType)
+                    GameViewModel.onEvent(MyEvent.GameStart(gameType))
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor =
