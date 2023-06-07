@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
 
     class ViewModelStatsFactory(private val gameType: GameType, private val dao: ScoresDao): ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ViewModelStats(gameType, dao) as T
+            return ViewModelStats(dao) as T
         }
     }
 

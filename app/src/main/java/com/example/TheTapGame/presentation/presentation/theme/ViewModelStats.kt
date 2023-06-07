@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 
 
 class ViewModelStats(
-    private val gameType: GameType,
     private val dao: ScoresDao
 ) : ViewModel() {
     private val _gameStates = mutableMapOf<GameType, MutableStateFlow<GameState>>()

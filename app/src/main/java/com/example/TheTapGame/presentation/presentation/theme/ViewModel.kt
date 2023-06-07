@@ -41,9 +41,8 @@ class MainViewModel(
         viewModelScope.launch {
             val averageScore = dao.getAverageScore(gameState.value.gameType.name)
             val highScore = dao.getHighScore(gameState.value.gameType.name)
-            val gamesPlayed = dao.getHighScore(gameState.value.gameType.name)
             _gameState.update {
-                it.copy(averageScore = averageScore, highScore = highScore, gamesPlayed = gamesPlayed.toInt())
+                it.copy(averageScore = averageScore, highScore = highScore)
             }
         }
     }
@@ -150,7 +149,6 @@ class MainViewModel(
                         val stopVal = _gameState.value.earlyStopThreshold
                         if(_gameState.value.timeOnClock < 0 || _gameState.value.timeOnClock > stopVal){
                             _gameState.update { it.copy(isGameFinished = true, isRunning = false)}
-                            onEvent(MyEvent.GameReset(event.gameType))
                             if(_gameState.value.score > _gameState.value.highScore){
                                 _gameState.update { it.copy(highScore = _gameState.value.score)}
                             }
@@ -164,6 +162,7 @@ class MainViewModel(
                                 )
                                 val averageScore = dao.getAverageScore(event.gameType.name)
                                 _gameState.update { it.copy(averageScore = averageScore) }
+                                onEvent(MyEvent.GameReset(event.gameType))
                             }
                         }
                         else {
@@ -258,13 +257,19 @@ class MainViewModel(
                             )
                             val averageScore = dao.getAverageScore(event.gameType.name)
                             _gameState.update { it.copy(averageScore = averageScore) }
+                            onEvent(MyEvent.GameReset(event.gameType))
                         }
 
                     }
                 }
             is MyEvent.GameReset ->
                 when(event.gameType) {
-                    GameType.SPEED -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L,timeOnClock = 0L, elapsedTime = 0L, isRunning = false) }
+                    GameType.SPEED -> _gameState.update { it.copy(
+                        score = 0L,
+                        timeSinceStart = 0L,
+                        timeOnClock = 0L,
+                        elapsedTime = 0L,
+                        isRunning = false) }
                     GameType.SURVIVAL -> _gameState.update { it.copy(
                         score = 0L,
                         timeOnClock = 500L,
@@ -273,8 +278,20 @@ class MainViewModel(
                         isRunning = false,
                         earlyStopThreshold = 100,
                         round = 1) }
-                    GameType.REACT -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L,timeOnClock = 0L, elapsedTime = 0L, isRunning = false, clicked = false, killSwitch = false) }
-                    GameType.PRECISION -> _gameState.update { it.copy(score = 0L, timeSinceStart = 0L,timeOnClock = 0L, elapsedTime = 0L, isRunning = false) }
+                    GameType.REACT -> _gameState.update { it.copy(
+                        score = 0L,
+                        timeSinceStart = 0L,
+                        timeOnClock = 0L,
+                        elapsedTime = 0L,
+                        isRunning = false,
+                        clicked = false,
+                        killSwitch = false) }
+                    GameType.PRECISION -> _gameState.update { it.copy(
+                        score = 0L,
+                        timeSinceStart = 0L,
+                        timeOnClock = 0L,
+                        elapsedTime = 0L,
+                        isRunning = false) }
                 }
 
         }
