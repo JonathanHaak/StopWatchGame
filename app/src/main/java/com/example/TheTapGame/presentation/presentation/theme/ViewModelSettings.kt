@@ -35,6 +35,18 @@ class ViewModelSettings(
         }
     }
 
+    var darkTheme = mutableStateOf(preferences.getBoolean("darkTheme", false))
+
+    fun updateDarkTheme(isDark: Boolean) {
+        viewModelScope.launch {
+            darkTheme.value = isDark
+            with(preferences.edit()) {
+                putBoolean("darkTheme", isDark)
+                apply()
+            }
+        }
+    }
+
     fun clearScores(gameType: GameType) {
         viewModelScope.launch {
             val scores = scoresDao.getScores(gameType.name)

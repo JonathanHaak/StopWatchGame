@@ -1,19 +1,18 @@
 package com.example.TheTapGame.presentation.presentation.theme
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.TheTapGame.State.GameType
+
 
 enum class DialogState {
     NONE, SPEED, SURVIVAL, REACT, PRECISION
@@ -23,99 +22,122 @@ enum class DialogState {
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: ViewModelSettings) {
     var dialogState by remember { mutableStateOf(DialogState.NONE) }
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+    Surface(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
                 Text(
                     text = "This is the Settings Screen!",
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
                     fontSize = 30.sp
                 )
+            }
 
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "Night Mode", style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Switch(
+                        checked = viewModel.darkTheme.value,
+                        onCheckedChange = viewModel::updateDarkTheme
+                    )
+                }
+            }
+
+
+            item {
                 // Add color picker here
                 ColorPicker(
                     colorScheme = viewModel.colorScheme,
                     onColorSelected = viewModel::updateColorScheme
                 )
+            }
 
+            items(GameType.values().size) { gameType ->
                 // Button to delete scores
-                for (gameType in GameType.values()) {
-                    Button(onClick = { dialogState = DialogState.valueOf(gameType.name) },
+                Button(onClick = { dialogState = DialogState.valueOf(GameType.values()[gameType].name)},
                     modifier = Modifier.fillMaxWidth(.75f).height(80.dp)) {
-                        Text("Clear ${gameType.name} Scores")
-                    }
+                    Text("Clear ${GameType.values()[gameType].name} Scores")
                 }
+            }
 
+            item {
                 Button(onClick = { navController.popBackStack() }) {
                     Text("Back to Start")
-                }
-
-                // Confirmation dialogs
-                if (dialogState != DialogState.NONE) {
-                    AlertDialog(
-                        onDismissRequest = { dialogState = DialogState.NONE },
-                        title = { Text("Confirm") },
-                        text = { Text("Do you really want to delete ${dialogState.name} scores?") },
-                        confirmButton = {
-                            Button(onClick = {
-                                viewModel.clearScores(GameType.valueOf(dialogState.name))
-                                dialogState = DialogState.NONE
-                            }) {
-                                Text("Yes")
-                            }
-                        },
-                        dismissButton = {
-                            Button(onClick = { dialogState = DialogState.NONE }) {
-                                Text("No")
-                            }
-                        }
-                    )
                 }
             }
         }
 
-        // Display snackbar message when updated
-
+        // Move AlertDialog outside of LazyColumn
+        if (dialogState != DialogState.NONE) {
+            AlertDialog(
+                onDismissRequest = { dialogState = DialogState.NONE },
+                title = { Text("Confirm") },
+                text = { Text("Do you really want to delete ${dialogState.name} scores?") },
+                confirmButton = {
+                    Button(onClick = {
+                        viewModel.clearScores(GameType.valueOf(dialogState.name))
+                        dialogState = DialogState.NONE
+                    }) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { dialogState = DialogState.NONE }) {
+                        Text("No")
+                    }
+                }
+            )
+        }
+    }
 }
+
 
 
 @Composable
 fun ColorPicker(colorScheme: MutableState<ColorScheme>, onColorSelected: (Color, Color) -> Unit) {
-    val colors = listOf(Color.Red, Color.Blue, Color.Green, Color.Yellow)
-    Text(text = "Select primary and secondary colors", textAlign = TextAlign.Center, modifier = Modifier.padding(8.dp))
-    Text(text = "Primary color", textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
-    ColorRow(colors, colorScheme.value.color1) { selectedPrimaryColor ->
-        colorScheme.value = colorScheme.value.copy(color1 = selectedPrimaryColor)
-    }
-    Text(text = "Secondary color", textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
-    ColorRow(colors, colorScheme.value.color2) { selectedSecondaryColor ->
-        colorScheme.value = colorScheme.value.copy(color2 = selectedSecondaryColor)
-    }
-    // update both colors on any color selection
-    onColorSelected(colorScheme.value.color1, colorScheme.value.color2)
-}
+    val red = remember { mutableStateOf(colorScheme.value.color1.red * 255) }
+    val green = remember { mutableStateOf(colorScheme.value.color1.green * 255) }
+    val blue = remember { mutableStateOf(colorScheme.value.color1.blue * 255) }
 
-@Composable
-fun ColorRow(colors: List<Color>, selectedColor: Color, onColorSelected: (Color) -> Unit) {
-    LazyRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-        items(colors.size) { color ->
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .padding(4.dp)
-                    .background(colors[color])
-                    .clickable { onColorSelected(colors[color]) },
-                contentAlignment = Alignment.Center
-            ) {
-                if (selectedColor == colors[color]) {
-                    Text(text = "✓", color = Color.White, fontSize = 20.sp)
-                }
-            }
+    Column (
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Primary Color", modifier = Modifier.padding(8.dp))
+        ColorSlider(value = red.value, onValueChange = { red.value = it }, color = Color.Red)
+        ColorSlider(value = green.value, onValueChange = { green.value = it }, color = Color.Green)
+        ColorSlider(value = blue.value, onValueChange = { blue.value = it }, color = Color.Blue)
+
+        val primaryColor = Color(red.value.toInt(), green.value.toInt(), blue.value.toInt())
+        Box(modifier = Modifier.size(250.dp).background(color = primaryColor).padding(8.dp))
+
+        Button(onClick = {
+            onColorSelected(primaryColor, colorScheme.value.color2)
+        }) {
+            Text("Set Primary Color")
         }
     }
+}
+
+
+@Composable
+fun ColorSlider(value: Float, onValueChange: (Float) -> Unit, color: Color) {
+    Slider(value = value, valueRange = 0f..255f, onValueChange = onValueChange,
+        colors = SliderDefaults.colors(
+            thumbColor = color,
+            activeTrackColor = color,
+            inactiveTrackColor = color.copy(alpha = 0.4f)
+        ),
+        modifier = Modifier.fillMaxWidth(.9f)
+    )
 }
 
 

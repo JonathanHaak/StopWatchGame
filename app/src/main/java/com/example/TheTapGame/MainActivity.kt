@@ -30,15 +30,15 @@ class MainActivity : ComponentActivity() {
         getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
     }
 
-    private val sharedViewModel: SharedViewModel by viewModels { SharedViewModelFactory(preferences) }
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            StopwatchGameTheme {
+            val viewModel = viewModel<ViewModelSettings>(factory = ViewModelSettingsFactory(GameType.SPEED, db.dao, preferences))
+            var colorScheme = viewModel.colorScheme.value
+            StopwatchGameTheme (viewModel = viewModel, userScheme = colorScheme) {
                 NavHost(navController, startDestination = Screen.Start.route) {
                     composable(Screen.Start.route) { StartScreen(navController) }
                     composable(Screen.GameOne.route) {
@@ -62,7 +62,6 @@ class MainActivity : ComponentActivity() {
                         StatsScreen(navController, viewModel)
                     }
                     composable(Screen.Settings.route) {
-                        val viewModel = viewModel<ViewModelSettings>(factory = ViewModelSettingsFactory(GameType.SPEED, db.dao, preferences)) // use whichever GameType you like here
                         SettingsScreen(navController, viewModel)
                     }
                     composable(Screen.Info.route) { InfoScreen(navController) }
@@ -74,14 +73,6 @@ class MainActivity : ComponentActivity() {
     class GameViewModelFactory(private val gameType: GameType, private val dao: ScoresDao): ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MainViewModel(gameType, dao) as T
-        }
-    }
-    class SharedViewModelFactory(private val preferences: SharedPreferences): ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(SharedViewModel::class.java)) {
-                return SharedViewModel(preferences) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 
