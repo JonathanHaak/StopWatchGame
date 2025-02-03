@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.TheTapGame'
+    namespace 'com.example.theTapGame'
     compileSdk 33
     compileSdkPreview 'UpsideDownCake'
     defaultConfig {
-        applicationId "com.example.TheTapGame"
+        applicationId "com.haak.TheTapGame"
         minSdk 26
         targetSdk 33
         versionCode 1
